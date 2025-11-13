@@ -1,19 +1,26 @@
 {
   "name": "react-node-app",
   "version": "1.0.0",
-  "description": "",
+  "description": "Backend server for a React app using Express and OpenAI API",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": [],
+  "keywords": [
+    "express",
+    "openai",
+    "api",
+    "node",
+    "react"
+  ],
   "author": "",
   "license": "ISC",
   "dependencies": {
     "cors": "^2.8.5",
     "dotenv": "^16.4.1",
     "express": "^4.17.3",
+    "openai": "^4.74.1",
     "path": "^0.12.7"
   }
 }
