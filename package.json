@@ -1,26 +1,21 @@
 {
-  "name": "react-node-app",
+  "name": "deploy-server",
   "version": "1.0.0",
-  "description": "Backend server for a React app using Express and OpenAI API",
+  "description": "Cloudflare Worker backend for image + text OpenAI chat",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "echo \"No build step needed\""
   },
   "keywords": [
-    "express",
+    "cloudflare",
+    "worker",
     "openai",
     "api",
-    "node",
-    "react"
+    "hono"
   ],
-  "author": "",
   "license": "ISC",
   "dependencies": {
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.1",
-    "express": "^4.17.3",
-    "openai": "^4.74.1",
-    "path": "^0.12.7"
+    "hono": "^4.4.6",
+    "openai": "^4.74.1"
   }
 }

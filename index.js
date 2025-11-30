@@ -1,46 +1,50 @@
-require("dotenv").config();
-const express = require("express");
-const OpenAI = require( "openai");
-const cors = require("cors");
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import OpenAI from "openai";
 
+export default {
+  async fetch(request, env, ctx) {
+    const app = new Hono();
 
-const apiKey = process.env.OPENAI_API_KEY
-
-const app = express();
-const port = 3001;
-const client = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-app.use(cors({ origin: "*" }));
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-
-app.post("/api/chat", async (req, res) => {
-  const { image, message } = req.body;
-
-  if (!image) {
-    return res.status(400).json({ error: "No image provided." });
-  }
-
-  try {
-    const response = await client.chat.completions.create({
-      model: "gpt-4o-mini",
-      messages: [{ role: "user", content: [
-            { type: "text", text: message },
-            { type: "image_url", image_url: { url: `data:image/jpeg;base64,${image}` } },
-          ], }],
+    app.use('*', cors());
+// 
+    const client = new OpenAI({
+      apiKey: env.OPENAI_API_KEY,
     });
 
-    res.json({ reply: response.choices[0].message.content });
-    console.log("Model reply:", response.choices[0].message.content);
-  } catch (error) {
-    console.error("Error calling OpenAI API:", error);
-    res.status(500).json({ error: error.message });
-  }
-});
+    app.post("/api/chat", async (c) => {
+      const body = await c.req.json();
+      const { image, message } = body;
 
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+      if (!image) {
+        return c.json({ error: "No image provided." }, 400);
+      }
+
+      try {
+        const response = await client.chat.completions.create({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "user",
+              content: [
+                { type: "text", text: message },
+                {
+                  type: "image_url",
+                  image_url: { url: `data:image/jpeg;base64,${image}` },
+                },
+              ],
+            },
+          ],
+        });
+
+        return c.json({
+          reply: response.choices[0].message.content,
+        });
+      } catch (err) {
+        return c.json({ error: err.message }, 500);
+      }
+    });
+
+    return app.fetch(request, env, ctx);
+  },
+};
