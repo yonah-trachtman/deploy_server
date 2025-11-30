@@ -1,5 +1,5 @@
 {
-  "name": "openai-worker",
+  "name": "deploy-server",
   "main": "index.js",
   "compatibility_date": "2025-11-30"
 }
