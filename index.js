@@ -36,13 +36,15 @@ export default {
             },
           ],
         });
-
+        console.log("Model reply:", response.choices[0].message.content);
         return c.json({
           reply: response.choices[0].message.content,
         });
       } catch (err) {
+        console.error("Error calling OpenAI API:", error);
         return c.json({ error: err.message }, 500);
       }
+      
     });
 
     return app.fetch(request, env, ctx);
