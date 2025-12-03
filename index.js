@@ -1,9 +1,7 @@
-
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 import OpenAI from "openai";
 
-const client = new OpenAI();
 const app = new Hono();
 
 app.use("*", cors());
@@ -16,7 +14,9 @@ app.post("/api/chat", async (c) => {
     return c.json({ error: "No image provided." }, 400);
   }
 
-  client.apiKey = c.env.OPENAI_API_KEY;
+  const client = new OpenAI({
+    apiKey: c.env.OPENAI_API_KEY,
+  });
 
   try {
     const response = await client.chat.completions.create({
@@ -29,7 +29,7 @@ app.post("/api/chat", async (c) => {
             {
               type: "image_url",
               image_url: {
-                url: `data:image/jpeg;base64,${image}`, 
+                url: `data:image/jpeg;base64,${image}`,
               },
             },
           ],
