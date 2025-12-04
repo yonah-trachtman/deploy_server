@@ -37,6 +37,7 @@ app.post("/api/chat", async (c) => {
       ],
     });
 
+    console.log(response.choices[0].message.content)
     return c.json({
       reply: response.choices[0].message.content,
     });
