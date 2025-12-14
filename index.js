@@ -1,47 +1,50 @@
+import { Hono } from "hono";
+import { cors } from "hono/cors";
+import OpenAI from "openai";
+
+const app = new Hono();
+
+app.use("*", cors());
+
 app.post("/api/chat", async (c) => {
-  const { image, message } = await c.req.json();
+  const raw = await c.req.text();
+  const { image, message } = JSON.parse(raw);
 
-  const client = new OpenAI({ apiKey: c.env.OPENAI_API_KEY });
+  if (!image) {
+    return c.json({ error: "No image provided." }, 400);
+  }
 
-  const stream = await client.responses.stream({
-    model: "gpt-4.1-mini",
-    input: [
-      {
-        role: "user",
-        content: [
-          { type: "input_text", text: message },
-          {
-            type: "input_image",
-            image_base64: image,
-          },
-        ],
-      },
-    ],
+  const client = new OpenAI({
+    apiKey: c.env.OPENAI_API_KEY,
   });
 
-  const encoder = new TextEncoder();
+  try {
+    const response = await client.chat.completions.create({
+      model: "gpt-4.1-mini",
+      messages: [
+        {
+          role: "user",
+          content: [
+            { type: "text", text: message },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${image}`,
+              },
+            },
+          ],
+        },
+      ],
+    });
 
-  return new Response(
-    new ReadableStream({
-      async start(controller) {
-        try {
-          for await (const event of stream) {
-            if (event.type === "response.output_text.delta") {
-              controller.enqueue(encoder.encode(event.delta));
-            }
-          }
-        } catch (err) {
-          controller.error(err);
-        } finally {
-          controller.close();
-        }
-      },
-    }),
-    {
-      headers: {
-        "Content-Type": "text/plain; charset=utf-8",
-        "Transfer-Encoding": "chunked",
-      },
-    }
-  );
+    console.log(response.choices[0].message.content)
+    return c.json({
+      reply: response.choices[0].message.content,
+    });
+  } catch (err) {
+    console.error(err);
+    return c.json({ error: err.message }, 500);
+  }
 });
+
+export default app;
