@@ -20,7 +20,9 @@ app.post("/api/chat", async (c) => {
   try {
     const stream = await client.responses.stream({
       model: "gpt-4.1-mini",
-      response_format: { type: "json_object" },
+      text: {
+  format: { type: "json_object" }
+},
       input: [
         {
           role: "user",
