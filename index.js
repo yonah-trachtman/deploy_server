@@ -3,11 +3,10 @@ import { cors } from "hono/cors";
 import OpenAI from "openai";
 
 const app = new Hono();
-
 app.use("*", cors());
 
 app.post("/api/chat", async (c) => {
-  const { image, message } = await c.req.json();
+  const { image, message, expectsJson } = await c.req.json();
 
   if (!image) {
     return c.json({ error: "No image provided." }, 400);
@@ -18,16 +17,31 @@ app.post("/api/chat", async (c) => {
   });
 
   try {
-    const stream = await client.responses.stream({
+    const response = await client.responses.create({
       model: "gpt-4.1-mini",
-      text: {
-  format: { type: "json_object" }
-},
+
+
+      ...(expectsJson
+        ? {
+            text: {
+              format: { type: "json_object" },
+            },
+          }
+        : {}),
+
       input: [
         {
           role: "user",
           content: [
-            { type: "input_text", text: message },
+            {
+              type: "input_text",
+              text: expectsJson
+                ? `${message}
+
+IMPORTANT:
+Respond ONLY with valid JSON.`
+                : message,
+            },
             {
               type: "input_image",
               image_url: `data:image/jpeg;base64,${image}`,
@@ -37,20 +51,21 @@ app.post("/api/chat", async (c) => {
       ],
     });
 
-    let buffer = "";
+    const output =
+      response.output_text ||
+      response.output?.[0]?.content?.[0]?.text ||
+      "";
 
-    for await (const event of stream) {
-      if (event.type === "response.output_text.delta") {
-        buffer += event.delta;
-      }
-    }
+    console.log("OpenAI reply:", output);
 
-    console.log(buffer);
-    return c.json({ reply: buffer });
+    return c.json({ reply: output });
 
   } catch (err) {
-    console.error(err);
-    return c.json({ error: err.message ?? "Unknown error" }, 500);
+    console.error("OpenAI error:", err);
+    return c.json(
+      { error: err instanceof Error ? err.message : "Unknown error" },
+      500
+    );
   }
 });
 
