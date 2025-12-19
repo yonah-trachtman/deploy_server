@@ -30,7 +30,7 @@ app.post("/api/chat", async (c) => {
             { type: "input_text", text: message },
             {
               type: "input_image",
-              image_base64: image,
+              image_url: `data:image/jpeg;base64,${image}`,
             },
           ],
         },
