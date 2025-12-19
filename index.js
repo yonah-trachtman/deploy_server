@@ -7,8 +7,7 @@ const app = new Hono();
 app.use("*", cors());
 
 app.post("/api/chat", async (c) => {
-  const raw = await c.req.text();
-  const { image, message } = JSON.parse(raw);
+  const { image, message } = await c.req.json();
 
   if (!image) {
     return c.json({ error: "No image provided." }, 400);
@@ -19,31 +18,37 @@ app.post("/api/chat", async (c) => {
   });
 
   try {
-    const response = await client.chat.completions.create({
+    const stream = await client.responses.stream({
       model: "gpt-4.1-mini",
-      messages: [
+      response_format: { type: "json_object" },
+      input: [
         {
           role: "user",
           content: [
-            { type: "text", text: message },
+            { type: "input_text", text: message },
             {
-              type: "image_url",
-              image_url: {
-                url: `data:image/jpeg;base64,${image}`,
-              },
+              type: "input_image",
+              image_base64: image,
             },
           ],
         },
       ],
     });
 
-    console.log(response.choices[0].message.content)
-    return c.json({
-      reply: response.choices[0].message.content,
-    });
-  } catch (err) {
+    let buffer = "";
+
+    for await (const event of stream) {
+      if (event.type === "response.output_text.delta") {
+        buffer += event.delta;
+      }
+    }
+
+    console.log(buffer);
+    return c.json({ reply: buffer });
+
+  } catch (err: any) {
     console.error(err);
-    return c.json({ error: err.message }, 500);
+    return c.json({ error: err.message ?? "Unknown error" }, 500);
   }
 });
 
