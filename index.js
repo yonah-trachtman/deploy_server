@@ -46,7 +46,7 @@ app.post("/api/chat", async (c) => {
     console.log(buffer);
     return c.json({ reply: buffer });
 
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
     return c.json({ error: err.message ?? "Unknown error" }, 500);
   }
