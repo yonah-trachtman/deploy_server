@@ -26,8 +26,6 @@ app.post("/api/chat", async (c) => {
   try {
     const response = await client.responses.create({
       model: "gpt-4.1-mini",
-
-
       ...(expectsJson
         ? {
             text: {
@@ -35,7 +33,6 @@ app.post("/api/chat", async (c) => {
             },
           }
         : {}),
-
       input: [
         {
           role: "user",
@@ -43,10 +40,7 @@ app.post("/api/chat", async (c) => {
             {
               type: "input_text",
               text: expectsJson
-                ? `${message}
-
-IMPORTANT:
-Respond ONLY with valid JSON.`
+                ? `${message}\nIMPORTANT:\nRespond ONLY with valid JSON.`
                 : message,
             },
             {
@@ -64,14 +58,13 @@ Respond ONLY with valid JSON.`
       "";
 
     console.log("OpenAI reply:", output);
-
     return c.json({ reply: output });
-
   } catch (err) {
-     console.error("OpenAI error:", {
+    console.error("OpenAI error:", {
       message: err instanceof Error ? err.message : String(err),
       stack: err instanceof Error ? err.stack : undefined,
       raw: err,
+    });
     return c.json(
       { error: err instanceof Error ? err.message : "Unknown error" },
       500
