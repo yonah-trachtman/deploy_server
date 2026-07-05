@@ -8,6 +8,13 @@ app.use("*", cors());
 app.post("/api/chat", async (c) => {
   const { image, message, expectsJson } = await c.req.json();
 
+  console.log("Incoming request:", {
+    hasImage: !!image,
+    imageLength: image?.length,
+    message,
+    expectsJson,
+  });
+
   if (!image) {
     return c.json({ error: "No image provided." }, 400);
   }
@@ -61,7 +68,10 @@ Respond ONLY with valid JSON.`
     return c.json({ reply: output });
 
   } catch (err) {
-    console.error("OpenAI error:", err);
+     console.error("OpenAI error:", {
+      message: err instanceof Error ? err.message : String(err),
+      stack: err instanceof Error ? err.stack : undefined,
+      raw: err,
     return c.json(
       { error: err instanceof Error ? err.message : "Unknown error" },
       500
