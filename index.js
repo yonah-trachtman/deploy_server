@@ -21,6 +21,8 @@ app.post("/api/chat", async (c) => {
 
   const client = new OpenAI({
     apiKey: c.env.OPENAI_API_KEY,
+    fdcKey: c.env.FDC_API_KEY,
+    signingKey: c.env.ANALYSIS_SIGNING_SECRET,
   });
 
   try {
