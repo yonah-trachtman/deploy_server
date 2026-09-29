@@ -13,9 +13,6 @@
     "api",
     "hono"
   ],
-  "vars": {
-    "ANALYSIS_SIGNING_SECRET": "cuSCGgACpbgbptZxnqbyrziDenNVCKTsyeo8sQUo7CPq5AYfSMcqdhBckav3Fm2tDL35WiY1WweAyuSqJU7r4fdnaO58IDGYIsb"
-  },
   "license": "ISC",
   "dependencies": {
     "hono": "^4.4.6",
