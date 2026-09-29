@@ -1,7 +1,7 @@
 {
   "name": "deploy-server",
   "main": "index.js",
-  "compatibility_date": "2025-11-30"
+  "compatibility_date": "2025-11-30",
     "vars": {
     "ANALYSIS_SIGNING_SECRET": "cuSCGgACpbgbptZxnqbyrziDenNVCKTsyeo8sQUo7CPq5AYfSMcqdhBckav3Fm2tDL35WiY1WweAyuSqJU7r4fdnaO58IDGYIsb"
   },
